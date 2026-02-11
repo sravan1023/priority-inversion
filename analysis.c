@@ -494,8 +494,9 @@ uint32_t an_response_time(pid32 pid)
         r = new_r;
     }
     
-    /* Did not converge */
+    /* Did not converge - mark as non-schedulable for safety */
     task->response_time = r;
+    task->schedulable = false;
     return r;
 }
 
