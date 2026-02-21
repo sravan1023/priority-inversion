@@ -151,11 +151,11 @@ pi_error_t mutex_lock(mutex_t *mutex)
  */
 pi_error_t mutex_trylock(mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->initialized) {
+    /* Guard clause */
+    if (!mutex || !mutex->initialized)
         return PI_ERROR_INVALID_RESOURCE;
-    }
     
-    pi_error_t result = pi_try_acquire(mutex->resource_id);
+    const pi_error_t result = pi_try_acquire(mutex->resource_id);
     
     if (result == PI_OK) {
         mutex->lock_count++;
