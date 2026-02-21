@@ -203,13 +203,11 @@ pi_error_t mutex_unlock(mutex_t *mutex)
  */
 pid32 mutex_get_owner(mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->initialized) {
+    /* Guard clause */
+    if (!mutex || !mutex->initialized)
         return PI_INVALID_PID;
-    }
     
-    /* Need to query the resource directly */
-    /* This would require adding a function to priority_inversion.c */
-    /* For now, return -1 */
+    /* TODO: query owner from priority inversion resource manager */
     return PI_INVALID_PID;
 }
 
