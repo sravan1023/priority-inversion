@@ -171,11 +171,11 @@ pi_error_t mutex_trylock(mutex_t *mutex)
  */
 pi_error_t mutex_timedlock(mutex_t *mutex, uint32_t timeout)
 {
-    if (mutex == NULL || !mutex->initialized) {
+    /* Guard clause */
+    if (!mutex || !mutex->initialized)
         return PI_ERROR_INVALID_RESOURCE;
-    }
     
-    pi_error_t result = pi_acquire_timeout(mutex->resource_id, timeout);
+    const pi_error_t result = pi_acquire_timeout(mutex->resource_id, timeout);
     
     if (result == PI_OK) {
         mutex->lock_count++;
