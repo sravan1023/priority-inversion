@@ -113,11 +113,11 @@ pi_error_t mutex_destroy(mutex_t *mutex)
  */
 pi_error_t mutex_lock(mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->initialized) {
+    /* Guard clause */
+    if (!mutex || !mutex->initialized)
         return PI_ERROR_INVALID_RESOURCE;
-    }
     
-    pi_error_t result;
+    pi_error_t result = PI_ERROR_RESOURCE_BUSY;
     
     /* For adaptive mutex, try spinning first */
     if (mutex->type == MUTEX_ADAPTIVE) {
@@ -128,7 +128,7 @@ pi_error_t mutex_lock(mutex_t *mutex)
                 mutex->lock_count++;
                 return PI_OK;
             }
-            /* Spin yield - just loop */
+            /* simple busy-wait spin */
         }
         mutex->spin_fail++;
     }
@@ -140,7 +140,7 @@ pi_error_t mutex_lock(mutex_t *mutex)
         mutex->lock_count++;
     } else if (result == PI_ERROR_RESOURCE_BUSY) {
         mutex->contention_count++;
-        /* This shouldn't happen with blocking acquire */
+        /* Should not occur for blocking acquire */
     }
     
     return result;
