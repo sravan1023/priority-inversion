@@ -218,18 +218,21 @@ pid32 mutex_get_owner(mutex_t *mutex)
  */
 bool mutex_is_locked(mutex_t *mutex)
 {
-    if (mutex == NULL || !mutex->initialized) {
+    /* Guard clause */
+    if (!mutex || !mutex->initialized)
         return false;
-    }
-    
+
     /* Try to acquire - if fails, it's locked */
     pi_error_t result = pi_try_acquire(mutex->resource_id);
+
     if (result == PI_OK) {
         /* We got it - release and return false */
         pi_release(mutex->resource_id);
         return false;
     }
-    return true;
+
+    /* Only treat acquire failure as locked */
+    return (result == PI_BUSY);
 }
 
 /**
